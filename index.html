@@ -1,1 +1,305 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sairam Hisab Manager</title>
+<style>
+:root{--nav:#123b68;--accent:#e89a16;--bg:#f3f6fa;--card:#fff;--text:#18212b;--muted:#66717d;--green:#138a4b;--red:#c73535;--border:#dfe5ec}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,"Noto Sans Devanagari",sans-serif;color:var(--text)}
+header{background:linear-gradient(135deg,#123b68,#1c568f);color:#fff;padding:18px 16px;text-align:center}
+header h1{margin:0 0 5px;font-size:25px}.sub{opacity:.9;font-size:14px}
+nav{position:sticky;top:0;z-index:20;background:#fff;padding:9px;display:flex;gap:7px;flex-wrap:wrap;box-shadow:0 2px 10px #0001}
+nav button{border:0;background:#edf1f6;color:#18324c;padding:10px 13px;border-radius:9px;font-weight:700;cursor:pointer}
+nav button.active{background:var(--nav);color:#fff}
+main{max-width:1250px;margin:auto;padding:16px}.page{display:none}.page.active{display:block}
+h2{margin:4px 0 15px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:15px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:16px;box-shadow:0 3px 10px #0000000b}
+.card h3{margin:0 0 8px;font-size:14px;color:var(--muted)}.num{font-size:25px;font-weight:800}
+.green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--nav)}.orange{color:#b96a00}
+.box,form{background:#fff;border:1px solid var(--border);border-radius:13px;padding:16px;margin-bottom:15px;box-shadow:0 3px 10px #0000000b}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+label{display:block;font-size:13px;font-weight:700;color:#4d5965;margin-bottom:3px}
+input,select,textarea{width:100%;padding:11px;border:1px solid #cfd7e0;border-radius:8px;margin:4px 0 12px;background:#fff;font-size:14px}
+textarea{min-height:75px;resize:vertical}.btn{border:0;border-radius:8px;padding:10px 14px;background:var(--nav);color:#fff;font-weight:700;cursor:pointer}
+.btn.alt{background:#66717d}.btn.green{background:var(--green);color:#fff}.btn.red{background:var(--red);color:#fff}
+.btn.orange{background:var(--accent);color:#111}.btn:disabled{opacity:.5;cursor:not-allowed}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}.toolbar>*{margin:0}
+.search{flex:1;min-width:200px}.tablewrap{overflow:auto;border:1px solid var(--border);border-radius:10px}
+table{width:100%;border-collapse:collapse;min-width:800px;background:#fff}th,td{padding:9px 10px;border-bottom:1px solid #e7ebef;text-align:left;font-size:13px;white-space:nowrap}
+th{background:#f7f9fb;font-size:12px;color:#42505d;position:sticky;top:0}tr:hover td{background:#fafcff}
+.actions button{padding:6px 8px;border:0;border-radius:6px;margin:2px;cursor:pointer}
+.badge{display:inline-block;padding:4px 8px;border-radius:20px;font-size:11px;font-weight:700;background:#edf1f5}
+.badge.green{background:#e5f7ed;color:#08763d}.badge.red{background:#fdeaea;color:#a72020}.badge.orange{background:#fff2d9;color:#925900}
+.note{color:var(--muted);font-size:13px;line-height:1.5}.section-title{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.kpi{display:flex;gap:10px;flex-wrap:wrap}.mini{background:#f7f9fb;border:1px solid var(--border);padding:9px 12px;border-radius:9px}
+hr{border:0;border-top:1px solid var(--border);margin:16px 0}
+.empty{text-align:center;padding:25px;color:var(--muted)}
+@media(max-width:650px){header h1{font-size:21px}nav button{flex:1;font-size:12px;padding:9px 5px}.cards{grid-template-columns:repeat(2,1fr)}.card{padding:12px}.num{font-size:20px}main{padding:10px}}
+@media print{nav,form,.toolbar,.no-print{display:none!important}.page{display:none!important}.page#reports{display:block!important}body{background:#fff}.box,.card{box-shadow:none}}
 
+body.dark{--bg:#121820;--card:#1b2530;--text:#eef3f7;--muted:#aeb9c4;--border:#33414e;background:#121820;color:var(--text)}
+body.dark nav{background:#1b2530}body.dark nav button{background:#263441;color:#eef3f7}body.dark input,body.dark select,body.dark textarea{background:#202c37;color:#fff;border-color:#40505f}body.dark th{background:#202c37;color:#eef3f7}body.dark table{background:#1b2530}body.dark td{border-color:#33414e}body.dark .box,body.dark form,body.dark .card{background:#1b2530}
+</style>
+</head>
+<body>
+<header>
+<div style="display:flex;justify-content:center;gap:8px;align-items:center;flex-wrap:wrap"><h1 style="margin:0">💰 Sairam Hisab Manager</h1><button onclick="toggleTheme()" style="border:0;border-radius:20px;padding:7px 10px;cursor:pointer">🌓 Theme</button></div>
+<div class="sub">Customer Service आणि तुमचा स्वतःचा व्यवहार — पूर्णपणे वेगळा</div>
+</header>
+
+<nav>
+<button class="active" onclick="showPage('home',this)">🏠 मुख्य Dashboard</button>
+<button onclick="showPage('customers',this)">👥 Customer Service</button>
+<button onclick="showPage('personal',this)">💰 माझा व्यवहार</button>
+<button onclick="showPage('people',this)">🤝 बाकीची नावे</button>
+<button onclick="showPage('reports',this)">📊 Reports</button>
+<button onclick="showPage('analytics',this)">📈 Analytics</button>
+<button onclick="showPage('settings',this)">⚙️ Settings</button>
+<button onclick="showPage('backup',this)">💾 Backup</button>
+</nav>
+
+<main>
+<section id="home" class="page active">
+<h2>मुख्य Dashboard</h2>
+<div class="cards">
+<div class="card"><h3>👥 Total Customers</h3><div id="dCust" class="num blue">0</div></div>
+<div class="card"><h3>🏪 Service मधून Total Amount</h3><div id="dService" class="num blue">₹0</div></div>
+<div class="card"><h3>📈 Service Profit</h3><div id="dProfit" class="num green">₹0</div></div>
+<div class="card"><h3>⏳ Customer कडून येणे</h3><div id="dServiceDue" class="num red">₹0</div></div>
+<div class="card"><h3>💰 माझी शिल्लक</h3><div id="dBalance" class="num orange">₹0</div></div>
+<div class="card"><h3>📥 मला येणे बाकी</h3><div id="dReceive" class="num green">₹0</div></div>
+<div class="card"><h3>📤 मला देणे बाकी</h3><div id="dPay" class="num red">₹0</div></div>
+</div>
+<div class="box">
+<h3>⚠️ महत्त्वाचे</h3>
+<p class="note">Customer Service मधील Amount/Profit हा <b>तुमच्या स्वतःच्या पैशांच्या व्यवहारात आपोआप जोडला जात नाही</b>. तुमच्या हातात प्रत्यक्ष पैसे आले/गेले तेवढेच “माझा व्यवहार” मध्ये स्वतंत्रपणे नोंदवा.</p>
+</div>
+<div class="box"><h3>🕐 अलीकडील Customer कामे</h3><div id="recentCust"></div></div>
+</section>
+
+<section id="customers" class="page">
+<div class="section-title"><h2>👥 Customer Service हिशोब</h2><div class="kpi"><span class="mini">Customers: <b id="cCount">0</b></span><span class="mini">Amount: <b id="cAmount">₹0</b></span><span class="mini">Profit: <b id="cProfit">₹0</b></span></div></div>
+<form id="customerForm">
+<input type="hidden" id="editCustomerId">
+<div class="grid">
+<div><label>Customer Name *</label><input id="cName" required placeholder="ग्राहकाचे नाव"></div>
+<div><label>Aadhaar Number</label><input id="cAadhaar" inputmode="numeric" maxlength="12" placeholder="12 अंकी क्रमांक"></div>
+<div><label>Date *</label><input id="cDate" type="date" required></div>
+<div><label>Time</label><input id="cTime" type="time"></div>
+<div><label>Mobile Number</label><input id="cMobile" inputmode="numeric" maxlength="10"></div>
+<div><label>काम (KAM) *</label><input id="cWork" required placeholder="उदा. PAN Card"></div>
+<div><label>Amount ₹ *</label><input id="cAmountIn" type="number" min="0" step="0.01" required></div>
+<div><label>Paid ₹</label><input id="cPaidIn" type="number" min="0" step="0.01" value="0"></div>
+<div><label>Profit ₹</label><input id="cProfitIn" type="number" min="0" step="0.01" value="0"></div>
+<div><label>Loss ₹</label><input id="cLossIn" type="number" min="0" step="0.01" value="0"></div>
+<div><label>Payment Mode</label><select id="cPayment"><option>Cash</option><option>UPI</option><option>Bank</option><option>Card</option><option>Other</option></select></div>
+<div><label>Status</label><select id="cStatus"><option>Pending</option><option>In Process</option><option>Completed</option><option>Cancelled</option></select></div>
+</div>
+<label>Remarks</label><textarea id="cRemarks" placeholder="काही अतिरिक्त माहिती"></textarea>
+<button class="btn green" id="customerSaveBtn">➕ Customer Save करा</button>
+<button type="button" class="btn alt" onclick="resetCustomer()">Clear</button>
+</form>
+<div class="toolbar"><input class="search" id="customerSearch" placeholder="🔍 नाव / मोबाईल / काम शोधा..." oninput="renderCustomers()"><input id="customerMonth" type="month" onchange="renderCustomers()"><select id="customerStatusFilter" onchange="renderCustomers()"><option value="">सर्व Status</option><option>Pending</option><option>In Process</option><option>Completed</option><option>Cancelled</option></select></div>
+<div class="tablewrap"><table><thead><tr><th>No.</th><th>Customer Name</th><th>Aadhaar</th><th>Date</th><th>Time</th><th>Mobile</th><th>काम</th><th>Amount</th><th>Paid</th><th>Due</th><th>Profit</th><th>Loss</th><th>Payment</th><th>Status</th><th>Remarks</th><th>Action</th></tr></thead><tbody id="customerTable"></tbody></table></div>
+</section>
+
+<section id="personal" class="page">
+<h2>💰 माझा स्वतःचा व्यवहार</h2>
+<div class="cards">
+<div class="card"><h3>📥 माझ्याकडे आले</h3><div id="pIncome" class="num green">₹0</div></div>
+<div class="card"><h3>📤 माझ्याकडून खर्च/दिले</h3><div id="pOut" class="num red">₹0</div></div>
+<div class="card"><h3>💵 शिल्लक</h3><div id="pBalance" class="num blue">₹0</div></div>
+</div>
+<form id="personalForm">
+<input type="hidden" id="editPersonalId">
+<div class="grid">
+<div><label>प्रकार *</label><select id="pType"><option value="income">📥 पैसे आले</option><option value="expense">📤 खर्च झाला</option><option value="receive">🤝 कोणाकडून येणे बाकी</option><option value="pay">💳 कोणाला देणे बाकी</option><option value="receivePaid">✅ येणे बाकी वसूल झाले</option><option value="payPaid">✅ देणे बाकी दिले</option></select></div>
+<div><label>रक्कम ₹ *</label><input id="pAmount" type="number" min="0.01" step="0.01" required></div>
+<div><label>तारीख *</label><input id="pDate" type="date" required></div>
+<div><label>Category</label><select id="pCat"><option>Business</option><option>घरखर्च</option><option>Online Seva Kendra</option><option>Mobile/Internet</option><option>प्रवास</option><option>खरेदी</option><option>इतर</option></select></div>
+<div><label>व्यक्ती (असल्यास)</label><select id="pPerson"><option value="">निवड नाही</option></select></div>
+</div>
+<label>तपशील</label><textarea id="pDesc" placeholder="उदा. दुकानाचे वीज बिल / अमोलकडून पैसे आले"></textarea>
+<button class="btn green">➕ व्यवहार Save करा</button><button type="button" class="btn alt" onclick="resetPersonal()">Clear</button>
+</form>
+<div class="toolbar"><input class="search" id="personalSearch" placeholder="🔍 तपशील / Category / नाव शोधा..." oninput="renderPersonal()"><input id="personalMonth" type="month" onchange="renderPersonal()"></div>
+<div class="tablewrap"><table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Person</th><th>Amount</th><th>तपशील</th><th>Action</th></tr></thead><tbody id="personalTable"></tbody></table></div>
+</section>
+
+<section id="people" class="page">
+<h2>🤝 बाकीची नावे</h2>
+<form id="personForm">
+<input type="hidden" id="editPersonId">
+<div class="grid"><div><label>नाव *</label><input id="personName" required></div><div><label>Mobile</label><input id="personMobile" inputmode="numeric"></div><div><label>टीप</label><input id="personNote"></div></div>
+<button class="btn">➕ नाव Save करा</button><button type="button" class="btn alt" onclick="resetPerson()">Clear</button>
+</form>
+<div class="box"><p class="note">ही नावे “माझा व्यवहार” मध्ये येणे/देणे बाकीच्या नोंदीसाठी वापरता येतील.</p></div>
+<div class="tablewrap"><table><thead><tr><th>नाव</th><th>Mobile</th><th>येणे बाकी</th><th>देणे बाकी</th><th>टीप</th><th>Action</th></tr></thead><tbody id="peopleTable"></tbody></table></div>
+</section>
+
+<section id="reports" class="page">
+<h2>📊 Reports</h2>
+<div class="box"><div class="grid"><div><label>महिना</label><input id="reportMonth" type="month" onchange="renderReports()"></div><div><label>Report</label><select id="reportType" onchange="renderReports()"><option value="all">सर्व</option><option value="service">Customer Service</option><option value="personal">माझा व्यवहार</option></select></div></div></div>
+<div class="cards">
+<div class="card"><h3>Service Amount</h3><div id="rService" class="num blue">₹0</div></div>
+<div class="card"><h3>Service Profit</h3><div id="rProfit" class="num green">₹0</div></div>
+<div class="card"><h3>Customer येणे</h3><div id="rServiceDue" class="num red">₹0</div></div>
+<div class="card"><h3>Personal Income</h3><div id="rIncome" class="num green">₹0</div></div>
+<div class="card"><h3>Personal Expense</h3><div id="rExpense" class="num red">₹0</div></div>
+</div>
+<div class="box"><h3>📌 खर्च Category नुसार</h3><div id="catReport"></div></div>
+<div class="box"><h3>🤝 व्यक्तीनुसार बाकी</h3><div id="dueReport"></div></div>
+<div class="box no-print"><button class="btn" onclick="window.print()">🖨️ Print / PDF</button> <button class="btn green" onclick="exportCSV()">📄 CSV Export</button></div>
+</section>
+
+
+<section id="analytics" class="page">
+<h2>📈 Analytics</h2>
+<div class="cards">
+<div class="card"><h3>आजचे Customer काम</h3><div id="aTodayCust" class="num blue">0</div></div>
+<div class="card"><h3>आजची Service Amount</h3><div id="aTodayAmount" class="num blue">₹0</div></div>
+<div class="card"><h3>आजचा Personal खर्च</h3><div id="aTodayExpense" class="num red">₹0</div></div>
+<div class="card"><h3>Completed कामे</h3><div id="aCompleted" class="num green">0</div></div>
+</div>
+<div class="box">
+<h3>📊 मागील 7 दिवस — Customer Amount</h3>
+<div id="weekBars"></div>
+</div>
+<div class="box">
+<h3>🧾 खर्च Category Summary</h3>
+<div id="analyticsCats"></div>
+</div>
+</section>
+
+<section id="settings" class="page">
+<h2>⚙️ Settings</h2>
+<div class="box">
+<h3>👤 Business माहिती</h3>
+<div class="grid">
+<div><label>Business Name</label><input id="bizName" placeholder="Sairam Online Seva Kendra"></div>
+<div><label>Mobile</label><input id="bizMobile" placeholder="मोबाईल नंबर"></div>
+<div><label>Address</label><input id="bizAddress" placeholder="पत्ता"></div>
+</div>
+<button class="btn green" onclick="saveSettings()">💾 Settings Save करा</button>
+</div>
+<div class="box">
+<h3>🛡️ PIN Lock</h3>
+<p class="note">हा PIN browser मधील या website साठी साधा local lock आहे. अत्यंत संवेदनशील माहिती ठेवताना Online secure login/database version वापरणे अधिक सुरक्षित आहे.</p>
+<div class="grid"><div><label>नवीन PIN (4–8 digits)</label><input id="newPin" inputmode="numeric" maxlength="8"></div></div>
+<button class="btn orange" onclick="setPin()">🔐 PIN Set करा</button>
+<button class="btn alt" onclick="removePin()">PIN काढा</button>
+</div>
+<div class="box">
+<h3>🧹 Maintenance</h3>
+<button class="btn alt" onclick="downloadBackup()">⬇️ Backup</button>
+<button class="btn red" onclick="clearAll()">⚠️ सर्व डेटा Delete</button>
+</div>
+</section>
+<section id="backup" class="page">
+<h2>💾 Backup / Restore</h2>
+<div class="box">
+<h3>Backup</h3><p class="note">सगळा डेटा एका JSON फाइलमध्ये डाउनलोड करा. Computer/मोबाईल बदलण्यापूर्वी Backup घ्या.</p>
+<button class="btn" onclick="downloadBackup()">⬇️ Backup Download</button>
+<hr>
+<h3>Restore</h3><input type="file" id="restoreFile" accept=".json">
+<button class="btn green" onclick="restoreBackup()">♻️ Restore करा</button>
+<hr>
+<button class="btn red" onclick="clearAll()">⚠️ सर्व डेटा Delete</button>
+</div>
+<div class="box"><h3>🔐 Data Safety</h3><p class="note">हा version browser मध्ये data सेव्ह करतो. Online GitHub वर ठेवले तरी data सर्व devices मध्ये आपोआप येणार नाही. पुढे Login + Online Database जोडल्यावर Computer/मोबाईल कुठूनही समान data पाहता येईल.</p></div>
+</section>
+</main>
+
+<script>
+const KEY='sairamHisabV2';
+let data=JSON.parse(localStorage.getItem(KEY)||'{"customers":[],"personal":[],"people":[]}');
+data.customers.forEach(x=>{x.paid=x.paid||0;x.payment=x.payment||'Cash'});const $=id=>document.getElementById(id);
+const money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2});
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+function save(){localStorage.setItem(KEY,JSON.stringify(data));renderAll()}
+function today(){return new Date().toISOString().slice(0,10)}
+function monthNow(){return today().slice(0,7)}
+function showPage(id,btn){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');renderAll()}
+function resetCustomer(){customerForm.reset();$('editCustomerId').value='';$('cDate').value=today();$('cTime').value=new Date().toTimeString().slice(0,5);$('cPaidIn').value=0;$('cProfitIn').value=0;$('cLossIn').value=0;$('cPayment').value='Cash';$('customerSaveBtn').textContent='➕ Customer Save करा'}
+function resetPersonal(){personalForm.reset();$('editPersonalId').value='';$('pDate').value=today()}
+function resetPerson(){personForm.reset();$('editPersonId').value=''}
+resetCustomer();resetPersonal();
+
+customerForm.onsubmit=e=>{e.preventDefault();let obj={id:$('editCustomerId').value||Date.now(),name:$('cName').value.trim(),aadhaar:$('cAadhaar').value.trim(),date:$('cDate').value,time:$('cTime').value,mobile:$('cMobile').value.trim(),work:$('cWork').value.trim(),amount:+$('cAmountIn').value,paid:+$('cPaidIn').value||0,profit:+$('cProfitIn').value||0,loss:+$('cLossIn').value||0,payment:$('cPayment').value,status:$('cStatus').value,remarks:$('cRemarks').value.trim()};let i=data.customers.findIndex(x=>x.id==obj.id);if(i>=0)data.customers[i]=obj;else data.customers.push(obj);resetCustomer();save()}
+personalForm.onsubmit=e=>{e.preventDefault();let obj={id:$('editPersonalId').value||Date.now(),type:$('pType').value,amount:+$('pAmount').value,date:$('pDate').value,cat:$('pCat').value,person:$('pPerson').value,desc:$('pDesc').value.trim()};let i=data.personal.findIndex(x=>x.id==obj.id);if(i>=0)data.personal[i]=obj;else data.personal.push(obj);resetPersonal();save()}
+personForm.onsubmit=e=>{e.preventDefault();let obj={id:$('editPersonId').value||Date.now(),name:$('personName').value.trim(),mobile:$('personMobile').value.trim(),note:$('personNote').value.trim()};let i=data.people.findIndex(x=>x.id==obj.id);if(i>=0)data.people[i]=obj;else data.people.push(obj);resetPerson();save()}
+
+function renderCustomers(){
+let q=($('customerSearch').value||'').toLowerCase(),m=$('customerMonth').value,s=$('customerStatusFilter').value;
+let a=data.customers.filter(x=>(!q||[x.name,x.mobile,x.work,x.remarks].join(' ').toLowerCase().includes(q))&&(!m||x.date.startsWith(m))&&(!s||x.status===s));
+$('cCount').textContent=data.customers.length;$('cAmount').textContent=money(data.customers.reduce((z,x)=>z+x.amount,0));$('cProfit').textContent=money(data.customers.reduce((z,x)=>z+x.profit,0));
+$('customerTable').innerHTML=a.sort((x,y)=>y.date.localeCompare(x.date)||y.id-x.id).map((x,i)=>`<tr><td>${i+1}</td><td><b>${esc(x.name)}</b></td><td>${esc(x.aadhaar)}</td><td>${x.date}</td><td>${x.time||''}</td><td>${esc(x.mobile)}</td><td>${esc(x.work)}</td><td>${money(x.amount)}</td><td class="green">${money(x.paid||0)}</td><td class="${(x.amount-(x.paid||0))>0?'red':'green'}">${money(Math.max(0,x.amount-(x.paid||0)))}</td><td class="green">${money(x.profit)}</td><td class="red">${money(x.loss)}</td><td>${esc(x.payment||'Cash')}</td><td><span class="badge ${x.status==='Completed'?'green':x.status==='Cancelled'?'red':'orange'}">${esc(x.status)}</span></td><td>${esc(x.remarks)}</td><td class="actions"><button onclick="editCustomer(${x.id})">✏️</button><button class="btn red" onclick="delCustomer(${x.id})">🗑️</button></td></tr>`).join('')||`<tr><td colspan="16" class="empty">Customer नोंद नाही.</td></tr>`;
+}
+function editCustomer(id){let x=data.customers.find(x=>x.id==id);if(!x)return;$('editCustomerId').value=x.id;$('cName').value=x.name;$('cAadhaar').value=x.aadhaar;$('cDate').value=x.date;$('cTime').value=x.time;$('cMobile').value=x.mobile;$('cWork').value=x.work;$('cAmountIn').value=x.amount;$('cPaidIn').value=x.paid||0;$('cProfitIn').value=x.profit;$('cLossIn').value=x.loss;$('cPayment').value=x.payment||'Cash';$('cStatus').value=x.status;$('cRemarks').value=x.remarks;$('customerSaveBtn').textContent='💾 Update Customer';window.scrollTo({top:0,behavior:'smooth'})}
+function delCustomer(id){if(confirm('हा Customer व्यवहार Delete करायचा?')){data.customers=data.customers.filter(x=>x.id!=id);save()}}
+
+const pType={income:'📥 पैसे आले',expense:'📤 खर्च',receive:'🤝 येणे बाकी',pay:'💳 देणे बाकी',receivePaid:'✅ येणे वसूल',payPaid:'✅ देणे दिले'};
+function personName(id){return data.people.find(x=>x.id==id)?.name||''}
+function renderPersonal(){
+$('pPerson').innerHTML='<option value="">निवड नाही</option>'+data.people.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
+let q=($('personalSearch').value||'').toLowerCase(),m=$('personalMonth').value;
+let a=data.personal.filter(x=>(!q||[x.cat,x.desc,personName(x.person),pType[x.type]].join(' ').toLowerCase().includes(q))&&(!m||x.date.startsWith(m)));
+let income=data.personal.filter(x=>x.type==='income').reduce((z,x)=>z+x.amount,0);
+let out=data.personal.filter(x=>x.type==='expense').reduce((z,x)=>z+x.amount,0);
+$('pIncome').textContent=money(income);$('pOut').textContent=money(out);$('pBalance').textContent=money(income-out);
+$('personalTable').innerHTML=a.sort((x,y)=>y.date.localeCompare(x.date)||y.id-x.id).map(x=>`<tr><td>${x.date}</td><td>${pType[x.type]}</td><td>${esc(x.cat)}</td><td>${esc(personName(x.person))}</td><td>${money(x.amount)}</td><td>${esc(x.desc)}</td><td class="actions"><button onclick="editPersonal(${x.id})">✏️</button><button class="btn red" onclick="delPersonal(${x.id})">🗑️</button></td></tr>`).join('')||`<tr><td colspan="7" class="empty">स्वतःचा व्यवहार नाही.</td></tr>`;
+}
+function editPersonal(id){let x=data.personal.find(x=>x.id==id);if(!x)return;$('editPersonalId').value=x.id;$('pType').value=x.type;$('pAmount').value=x.amount;$('pDate').value=x.date;$('pCat').value=x.cat;$('pPerson').value=x.person||'';$('pDesc').value=x.desc;window.scrollTo({top:0,behavior:'smooth'})}
+function delPersonal(id){if(confirm('हा व्यवहार Delete करायचा?')){data.personal=data.personal.filter(x=>x.id!=id);save()}}
+
+function renderPeople(){
+let rows=data.people.map(p=>{let receive=data.personal.filter(x=>x.person==p.id&&(x.type==='receive')).reduce((z,x)=>z+x.amount,0)-data.personal.filter(x=>x.person==p.id&&x.type==='receivePaid').reduce((z,x)=>z+x.amount,0);let pay=data.personal.filter(x=>x.person==p.id&&x.type==='pay').reduce((z,x)=>z+x.amount,0)-data.personal.filter(x=>x.person==p.id&&x.type==='payPaid').reduce((z,x)=>z+x.amount,0);return {p,receive,pay}});$('peopleTable').innerHTML=rows.map(({p,receive,pay})=>`<tr><td><b>${esc(p.name)}</b></td><td>${esc(p.mobile)}</td><td class="green">${money(receive)}</td><td class="red">${money(pay)}</td><td>${esc(p.note)}</td><td class="actions"><button onclick="editPerson(${p.id})">✏️</button><button class="btn red" onclick="delPerson(${p.id})">🗑️</button></td></tr>`).join('')||`<tr><td colspan="6" class="empty">अजून नावे नाहीत.</td></tr>`}
+function editPerson(id){let x=data.people.find(x=>x.id==id);$('editPersonId').value=x.id;$('personName').value=x.name;$('personMobile').value=x.mobile;$('personNote').value=x.note;window.scrollTo({top:0,behavior:'smooth'})}
+function delPerson(id){if(data.personal.some(x=>x.person==id)){alert('या व्यक्तीशी व्यवहार जोडलेले आहेत. आधी व्यवहार तपासा.');return}if(confirm('हे नाव Delete करायचे?')){data.people=data.people.filter(x=>x.id!=id);save()}}
+
+function renderHome(){
+let service=data.customers.reduce((z,x)=>z+x.amount,0),serviceDue=data.customers.reduce((z,x)=>z+Math.max(0,x.amount-(x.paid||0)),0),profit=data.customers.reduce((z,x)=>z+x.profit,0),income=data.personal.filter(x=>x.type==='income').reduce((z,x)=>z+x.amount,0),expense=data.personal.filter(x=>x.type==='expense').reduce((z,x)=>z+x.amount,0);
+let rec=data.personal.filter(x=>x.type==='receive').reduce((z,x)=>z+x.amount,0)-data.personal.filter(x=>x.type==='receivePaid').reduce((z,x)=>z+x.amount,0);
+let pay=data.personal.filter(x=>x.type==='pay').reduce((z,x)=>z+x.amount,0)-data.personal.filter(x=>x.type==='payPaid').reduce((z,x)=>z+x.amount,0);
+$('dCust').textContent=data.customers.length;$('dService').textContent=money(service);$('dProfit').textContent=money(profit);$('dServiceDue').textContent=money(serviceDue);$('dBalance').textContent=money(income-expense);$('dReceive').textContent=money(rec);$('dPay').textContent=money(pay);
+$('recentCust').innerHTML=data.customers.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).slice(0,7).map(x=>`<div style="padding:8px;border-bottom:1px solid #eee">${x.date} — <b>${esc(x.name)}</b> — ${esc(x.work)} — ${money(x.amount)} — ${esc(x.status)}</div>`).join('')||'<div class="empty">अजून Customer नोंद नाही.</div>';
+}
+function renderReports(){
+let m=$('reportMonth').value||monthNow(),type=$('reportType').value;
+let c=data.customers.filter(x=>x.date.startsWith(m)),p=data.personal.filter(x=>x.date.startsWith(m));
+$('rService').textContent=money(c.reduce((z,x)=>z+x.amount,0));$('rProfit').textContent=money(c.reduce((z,x)=>z+x.profit,0));$('rServiceDue').textContent=money(c.reduce((z,x)=>z+Math.max(0,x.amount-(x.paid||0)),0));$('rIncome').textContent=money(p.filter(x=>x.type==='income').reduce((z,x)=>z+x.amount,0));$('rExpense').textContent=money(p.filter(x=>x.type==='expense').reduce((z,x)=>z+x.amount,0));
+let cats={};p.filter(x=>x.type==='expense').forEach(x=>cats[x.cat]=(cats[x.cat]||0)+x.amount);$('catReport').innerHTML=Object.entries(cats).map(([k,v])=>`<p><b>${esc(k)}</b> — ${money(v)}</p>`).join('')||'या महिन्यात खर्च नाही.';
+let due=data.people.map(p=>{let r=data.personal.filter(x=>x.person==p.id&&x.type==='receive').reduce((z,x)=>z+x.amount,0)-data.personal.filter(x=>x.person==p.id&&x.type==='receivePaid').reduce((z,x)=>z+x.amount,0);let q=data.personal.filter(x=>x.person==p.id&&x.type==='pay').reduce((z,x)=>z+x.amount,0)-data.personal.filter(x=>x.person==p.id&&x.type==='payPaid').reduce((z,x)=>z+x.amount,0);return [p.name,r,q]}).filter(x=>x[1]||x[2]);
+$('dueReport').innerHTML=due.map(x=>`<p><b>${esc(x[0])}</b> — येणे: <span class="green">${money(x[1])}</span> | देणे: <span class="red">${money(x[2])}</span></p>`).join('')||'बाकी नाही.';
+}
+function downloadBackup(){let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sairam-hisab-backup-'+today()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function restoreBackup(){let f=$('restoreFile').files[0];if(!f)return alert('Backup फाइल निवडा.');let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.customers||!x.personal||!x.people)throw 1;if(confirm('सध्याचा डेटा बदलून Backup Restore करायचा?')){data=x;save();alert('Restore पूर्ण झाला.')}}catch(e){alert('ही योग्य Sairam Backup फाइल नाही.')}};r.readAsText(f)}
+function clearAll(){if(confirm('⚠️ सर्व Customer, Personal आणि बाकीचा डेटा कायमचा Delete करायचा आहे?')){data={customers:[],personal:[],people:[]};save();alert('सर्व डेटा Delete झाला.')}}
+function exportCSV(){let rows=[['Type','Date','Name','Work/Category','Amount','Profit','Loss','Status','Remarks']];data.customers.forEach(x=>rows.push(['Customer',x.date,x.name,x.work,x.amount,x.profit,x.loss,x.status,x.remarks]));data.personal.forEach(x=>rows.push(['Personal',x.date,personName(x.person),x.cat,x.amount,'','','',x.desc]));let csv=rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\\n');let blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sairam-hisab-report.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+
+function renderAnalytics(){
+ let t=today(), c=data.customers.filter(x=>x.date===t), pe=data.personal.filter(x=>x.date===t&&x.type==='expense');
+ $('aTodayCust').textContent=c.length;
+ $('aTodayAmount').textContent=money(c.reduce((z,x)=>z+x.amount,0));
+ $('aTodayExpense').textContent=money(pe.reduce((z,x)=>z+x.amount,0));
+ $('aCompleted').textContent=data.customers.filter(x=>x.status==='Completed').length;
+ let bars=[], max=0;
+ for(let i=6;i>=0;i--){let d=new Date();d.setDate(d.getDate()-i);let ds=d.toISOString().slice(0,10);let v=data.customers.filter(x=>x.date===ds).reduce((z,x)=>z+x.amount,0);max=Math.max(max,v);bars.push([ds,v])}
+ $('weekBars').innerHTML=bars.map(([d,v])=>`<div style="display:flex;gap:8px;align-items:center;margin:7px 0"><span style="width:85px;font-size:12px">${d.slice(5)}</span><div style="height:22px;width:${max?Math.max(3,v/max*70):3}%;background:#2d6aa0;border-radius:4px"></div><b>${money(v)}</b></div>`).join('');
+ let cats={};data.personal.filter(x=>x.type==='expense').forEach(x=>cats[x.cat]=(cats[x.cat]||0)+x.amount);
+ $('analyticsCats').innerHTML=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="mini" style="display:flex;justify-content:space-between;margin:5px 0"><span>${esc(k)}</span><b>${money(v)}</b></div>`).join('')||'खर्चाची नोंद नाही.';
+}
+function getSettings(){return JSON.parse(localStorage.getItem('sairamHisabSettings')||'{}')}
+function saveSettings(){localStorage.setItem('sairamHisabSettings',JSON.stringify({name:$('bizName').value,mobile:$('bizMobile').value,address:$('bizAddress').value}));alert('Settings Save झाले.')}
+function loadSettings(){let s=getSettings();$('bizName').value=s.name||'';$('bizMobile').value=s.mobile||'';$('bizAddress').value=s.address||''}
+function toggleTheme(){document.body.classList.toggle('dark');localStorage.setItem('sairamDark',document.body.classList.contains('dark')?'1':'0')}
+function setPin(){let p=$('newPin').value.trim();if(!/^\d{4,8}$/.test(p))return alert('4 ते 8 अंकी PIN टाका.');localStorage.setItem('sairamPin',p);$('newPin').value='';alert('PIN Set झाला.')}
+function removePin(){localStorage.removeItem('sairamPin');alert('PIN Lock काढला.')}
+function checkPin(){let p=localStorage.getItem('sairamPin');if(!p)return true;let a=prompt('Sairam Hisab Manager PIN टाका');if(a===p)return true;alert('चुकीचा PIN.');return false}
+
+function renderAll(){renderHome();renderCustomers();renderPersonal();renderPeople();renderReports();renderAnalytics();loadSettings()}
+$('customerMonth').value=monthNow();$('personalMonth').value=monthNow();$('reportMonth').value=monthNow();if(localStorage.getItem('sairamDark')==='1')document.body.classList.add('dark');if(!checkPin()){document.body.innerHTML='<div style="padding:40px;text-align:center;font-family:Arial"><h2>🔒 Access Locked</h2><p>Page refresh करून पुन्हा योग्य PIN टाका.</p></div>';}else{renderAll();}
+</script>
+</body>
+</html>
